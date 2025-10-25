@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuoCareers - Kiến Tạo Sự Nghiệp Bền Vững</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google GenAI SDK for AI features -->
+    <script src="https://unpkg.com/@google/genai@0.1.0/dist/client.umd.js"></script>
+    <style>
+        /* Custom styles for aesthetic enhancements and responsiveness */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* Utility classes for loaders and animations */
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        .loader-small {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom scrollbar for chatbot */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: #f3f4f6; }
+
+        /* Typing indicator for chatbot */
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin: 0 1px;
+            background-color: #6366f1;
+            border-radius: 50%;
+            opacity: 0;
+            animation: typing-bounce 1s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing-bounce {
+            0%, 75%, 100% { transform: translateY(0); opacity: 0.5; }
+            25% { transform: translateY(-3px); opacity: 1; }
+        }
+
+        /* Blog Skeleton Animation */
+        .skeleton-image, .skeleton-line {
+            background-color: #e5e7eb;
+            animation: pulse 1.5s infinite;
+        }
+        .skeleton-line { height: 0.75rem; border-radius: 4px; margin-bottom: 0.5rem; }
+        .blog-post-skeleton { position: relative; overflow: hidden; }
+        
+        /* Modal Transitions (Hidden by default) */
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        /* Insight Accordion Toggle */
+        .insight-content {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 1.5rem;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+        }
+        .insight-content.open {
+            max-height: 500px; /* Adjust based on content height */
+            opacity: 1;
+            padding: 1rem 1.5rem 1.5rem 1.5rem;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="fixed top-0 left-0 w-full z-50 bg-white shadow-lg backdrop-blur-sm bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="text-3xl font-extrabold text-indigo-800 tracking-tight">DuoCareers</a>
+            <nav id="nav-desktop" class="hidden lg:flex space-x-8 text-gray-600 font-medium">
+                <a href="#solutions" class="hover:text-indigo-600 transition duration-300 ease-in-out">Giải Pháp</a>
+                <a href="#insights" class="hover:text-indigo-600 transition duration-300 ease-in-out">Góc Chuyên Gia</a>
+                <a href="#why-us" class="hover:text-indigo-600 transition duration-300 ease-in-out">Tại Sao Chọn Chúng Tôi</a>
+                <a href="#pricing" class="hover:text-indigo-600 transition duration-300 ease-in-out">Bảng Giá</a>
+                <a href="#blog" class="hover:text-indigo-600 transition duration-300 ease-in-out">Blog</a>
+                <a href="#ai-advisor" class="hover:text-indigo-600 transition duration-300 ease-in-out">AI Cố Vấn</a>
+            </nav>
+            <button 
+                id="menu-toggle" 
+                class="lg:hidden z-[100] p-2 rounded-lg text-indigo-800 hover:bg-indigo-50 transition" 
+                aria-label="Toggle menu"
+            >
+                <!-- Hamburger Icon -->
+                <svg id="menu-icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                <!-- Close Icon (Hidden by default) -->
+                <svg id="menu-icon-close" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Mobile Menu Overlay (Hidden by default) -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-gray-900 bg-opacity-95 transform translate-x-full transition-transform duration-500 ease-in-out lg:hidden">
+        <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl font-semibold text-white">
+            <a href="#solutions" onclick="closeMenu()" class="hover:text-amber-400 transition">Giải Pháp</a>
+            <a href="#insights" onclick="closeMenu()" class="hover:text-amber-400 transition">Góc Chuyên Gia</a>
+            <a href="#why-us" onclick="closeMenu()" class="hover:text-amber-400 transition">Tại Sao Chọn Chúng Tôi</a>
+            <a href="#pricing" onclick="closeMenu()" class="hover:text-amber-400 transition">Bảng Giá</a>
+            <a href="#blog" onclick="closeMenu()" class="hover:text-amber-400 transition">Blog</a>
+            <a href="#ai-advisor" onclick="closeMenu()" class="hover:text-amber-400 transition">AI Cố Vấn</a>
+        </nav>
+    </div>
+    <div class="h-20"></div> <!-- Spacer for fixed header -->
+
+    <main>
+        <!-- Hero Section -->
+        <section class="bg-indigo-900 text-white pt-16 pb-24 relative overflow-hidden shadow-2xl">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://placehold.co/1920x1080/1e3a8a/ffffff?text=Career+Growth')] bg-cover bg-center"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl sm:text-6xl font-extrabold leading-tight tracking-tight mt-8">
+                    Sự nghiệp của bạn không chỉ là một công việc.
+                </h1>
+                <h2 class="text-3xl sm:text-5xl font-light text-amber-400 mt-4 italic">
+                    Double your careers!
+                </h2>
+                <p class="mt-8 text-xl max-w-3xl mx-auto text-indigo-100">
+                    Sau nhiều năm cống hiến, bạn có cảm thấy mình đang chững lại? Đã đến lúc biến kinh nghiệm thành di sản, kiến tạo một sự nghiệp tự chủ, bền vững và đầy cảm hứng. DuoCareers là người đồng hành chiến lược giúp bạn thực hiện điều đó.
+                </p>
+                <a href="#pricing" class="mt-12 inline-block px-8 py-4 text-lg font-bold bg-amber-500 hover:bg-amber-600 text-indigo-900 rounded-full shadow-xl transform transition-all duration-300 ease-in-out hover:scale-105">
+                    Khám Phá Giải Pháp Ngay
+                </a>
+            </div>
+        </section>
+
+        <!-- Solutions Section -->
+        <section id="solutions" class="py-20 sm:py-28 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Hệ Điều Hành Sự Nghiệp Của Bạn</h2>
+                <p class="mt-4 text-xl text-gray-500 text-center max-w-3xl mx-auto">Chúng tôi cung cấp một giải pháp toàn diện theo 3 giai đoạn, giúp bạn từ tái định vị chiến lược đến thực thi hiệu quả.</p>
+                <div class="mt-16 grid gap-10 lg:grid-cols-3">
+                    <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-indigo-600 hover:shadow-2xl transition duration-300">
+                        <div class="text-4xl font-bold text-indigo-600 mb-4">01</div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Định vị & Kiến tạo Chiến lược</h3>
+                        <p class="text-gray-600">Cùng các chuyên gia của chúng tôi phân tích sâu sắc điểm mạnh, giá trị cốt lõi và khát vọng của bạn để xây dựng một "luận án sự nghiệp" độc nhất, biến kinh nghiệm thành lợi thế cạnh tranh.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-indigo-600 hover:shadow-2xl transition duration-300">
+                        <div class="text-4xl font-bold text-indigo-600 mb-4">02</div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Kích hoạt "Hệ điều hành"</h3>
+                        <p class="text-gray-600">Lộ trình phát triển chủ động, linh hoạt và được hỗ trợ trọn gói, chất lượng cao, giúp bạn tối ưu hóa hiệu suất và mở rộng tầm ảnh hưởng.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-indigo-600 hover:shadow-2xl transition duration-300">
+                        <div class="text-4xl font-bold text-indigo-600 mb-4">03</div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-3">Gia nhập Cộng đồng Tinh hoa</h3>
+                        <p class="text-gray-600">Kết nối với mạng lưới các nhà lãnh đạo và chuyên gia cùng chí hướng. Tham gia các sự kiện và workshop độc quyền để mở rộng tầm ảnh hưởng và không ngừng phát triển.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Career Insights Section -->
+        <section id="insights" class="py-20 sm:py-28 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Góc Chuyên Gia & Khung Lý Thuyết</h2>
+                <p class="mt-4 text-xl text-gray-500 text-center max-w-3xl mx-auto">Nền tảng lý thuyết vững chắc đằng sau phương pháp tư vấn của chúng tôi, giúp bạn hiểu rõ và làm chủ sự nghiệp.</p>
+                <div class="mt-12 space-y-4 max-w-4xl mx-auto" id="insights-container">
+                    <!-- Insight Item 1 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-500 ease-in-out border border-gray-200" data-insight-index="0">
+                        <button class="w-full text-left p-6 flex justify-between items-center hover:bg-indigo-50 transition duration-200" onclick="toggleInsight(0)">
+                            <h3 class="text-xl font-semibold text-gray-900">Khung EPL (Entrepreneurship, Professionalism, Leadership)</h3>
+                            <span class="text-indigo-600 text-2xl font-light transform transition-transform duration-300 insight-toggle-icon">−</span>
+                        </button>
+                        <div class="insight-content open">
+                            <div class="text-gray-600 border-t pt-4">
+                                <p class="mb-2">Một mô hình đa chiều để phát triển vốn nhân lực trong thế kỷ 21, xem sự nghiệp là một không gian ba chiều, cho phép bạn phát triển đồng thời:</p>
+                                <ul class="list-disc list-inside space-y-2 ml-4">
+                                    <li class="font-medium text-indigo-600"><strong>Tinh thần Khởi nghiệp (E):</strong> Khả năng nhận diện, khai thác cơ hội và đổi mới.</li>
+                                    <li class="font-medium text-indigo-600"><strong>Tính Chuyên nghiệp (P):</strong> Năng lực chuyên môn sâu rộng và đạo đức nghề nghiệp.</li>
+                                    <li class="font-medium text-indigo-600"><strong>Năng lực Lãnh đạo (L):</strong> Khả năng định hướng, truyền cảm hứng và quản lý đội nhóm.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Insight Item 2 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-500 ease-in-out border border-gray-200" data-insight-index="1">
+                        <button class="w-full text-left p-6 flex justify-between items-center hover:bg-indigo-50 transition duration-200" onclick="toggleInsight(1)">
+                            <h3 class="text-xl font-semibold text-gray-900">Mô hình T-Shaped (Kỹ năng hình chữ T)</h3>
+                            <span class="text-indigo-600 text-2xl font-light transform transition-transform duration-300 insight-toggle-icon">+</span>
+                        </button>
+                        <div class="insight-content">
+                            <div class="text-gray-600 border-t pt-4">
+                                <p class="mb-2">Mô tả một chuyên gia toàn diện, kết hợp giữa kiến thức chuyên sâu và các kỹ năng mở rộng (kỹ năng chuyển đổi):</p>
+                                <ul class="list-disc list-inside space-y-2 ml-4">
+                                    <li class="font-medium text-indigo-600"><strong>Chiều sâu (Trục dọc):</strong> Kiến thức, kỹ năng chuyên môn đặc thù trong một lĩnh vực cụ thể (ví dụ: Tài chính, Công nghệ).</li>
+                                    <li class="font-medium text-indigo-600"><strong>Chiều rộng (Trục ngang):</strong> Các kỹ năng mềm và kỹ năng chuyển đổi như quản lý dự án, tư duy chiến lược, giao tiếp và hợp tác liên ngành.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Why Choose Us Section -->
+        <section id="why-us" class="py-20 sm:py-28 bg-indigo-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Tại Sao Đầu Tư Sự Nghiệp Cùng DuoCareers?</h2>
+                <p class="mt-4 text-xl text-gray-600 text-center max-w-3xl mx-auto">Chúng tôi không chỉ đưa ra lời khuyên. Chúng tôi đồng hành kiến tạo nên phiên bản sự nghiệp vượt trội nhất của bạn.</p>
+                <div class="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+                    <div class="bg-white p-6 rounded-xl shadow-xl text-center flex flex-col items-center">
+                        <div class="text-5xl text-amber-500 mb-4">👥</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Đội Ngũ Chuyên Gia Thực Chiến</h3>
+                        <p class="text-gray-600 text-sm">Đội ngũ là các nhà lãnh đạo, nhà sáng lập được chứng nhận quốc tế, kết hợp giữa lý thuyết toàn cầu và kinh nghiệm sâu sắc tại thị trường Việt Nam.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-xl text-center flex flex-col items-center">
+                        <div class="text-5xl text-amber-500 mb-4">🔬</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Phương Pháp Luận Độc Quyền</h3>
+                        <p class="text-gray-600 text-sm">Dựa trên các khung lý thuyết đã được kiểm chứng (EPL, T-Shaped), đảm bảo lộ trình của bạn không chỉ linh hoạt mà còn bền vững và có thể đo lường.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-xl text-center flex flex-col items-center">
+                        <div class="text-5xl text-amber-500 mb-4">🗺️</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Lộ Trình Cá Nhân Hóa & Bền Vững</h3>
+                        <p class="text-gray-600 text-sm">Chúng tôi xây dựng năng lực nội tại, giúp bạn tự tin điều hướng sự nghiệp trong dài hạn, không chỉ là giải pháp tức thời.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-xl text-center flex flex-col items-center">
+                        <div class="text-5xl text-amber-500 mb-4">⚙️</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Giải Pháp Toàn Diện</h3>
+                        <p class="text-gray-600 text-sm">Nền tảng duy nhất kết hợp tư vấn chiến lược cao cấp và bộ công cụ thực thi, giải quyết triệt để các rào cản quan trọng.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="py-20 sm:py-28 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Các Gói Dịch Vụ Chiến Lược</h2>
+                <p class="mt-4 text-xl text-gray-600 text-center max-w-3xl mx-auto">Đầu tư vào sự nghiệp của bạn một cách chiến lược. Chọn gói dịch vụ phù hợp để bắt đầu hành trình "Double your careers".</p>
+                <div class="mt-16 grid gap-8 lg:grid-cols-4 md:grid-cols-2">
+                    <!-- Package 1: Khám Phá -->
+                    <div class="bg-gray-50 p-6 rounded-2xl shadow-lg flex flex-col transition duration-300 hover:shadow-xl border-t-4 border-gray-200">
+                        <h3 class="text-2xl font-bold text-indigo-800">Khám Phá</h3>
+                        <p class="mt-2 text-gray-500">Bước đệm ban đầu</p>
+                        <p class="mt-4 text-3xl font-extrabold text-amber-500">Từ $100</p>
+                        <ul class="mt-6 space-y-3 flex-grow text-gray-700">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Đánh giá Năng lực & Mục tiêu</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Phân tích Hồ sơ Sự nghiệp</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> 1 phiên làm việc 1:1 (60 phút)</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Báo cáo sơ bộ & Lộ trình đề xuất</li>
+                        </ul>
+                        <button onclick="openModal('Khám Phá')" class="mt-8 w-full px-4 py-3 border border-indigo-600 text-indigo-600 font-semibold rounded-full hover:bg-indigo-600 hover:text-white transition duration-300">Chọn Gói Này</button>
+                    </div>
+
+                    <!-- Package 2: Tăng Tốc -->
+                    <div class="bg-gray-50 p-6 rounded-2xl shadow-lg flex flex-col transition duration-300 hover:shadow-xl border-t-4 border-gray-200">
+                        <h3 class="text-2xl font-bold text-indigo-800">Tăng Tốc</h3>
+                        <p class="mt-2 text-gray-500">Mở rộng tầm ảnh hưởng</p>
+                        <p class="mt-4 text-3xl font-extrabold text-amber-500">Liên hệ</p>
+                        <ul class="mt-6 space-y-3 flex-grow text-gray-700">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Bao gồm gói **Khám Phá**</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Xây dựng Lộ trình Phát triển chi tiết</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> 3 phiên huấn luyện chuyên sâu</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Chiến lược Xây dựng Thương hiệu Cá nhân</li>
+                        </ul>
+                        <button onclick="openModal('Tăng Tốc')" class="mt-8 w-full px-4 py-3 border border-indigo-600 text-indigo-600 font-semibold rounded-full hover:bg-indigo-600 hover:text-white transition duration-300">Chọn Gói Này</button>
+                    </div>
+                    
+                    <!-- Package 3: Kiến Tạo (Highlighted) -->
+                    <div class="bg-indigo-800 p-6 rounded-2xl shadow-2xl flex flex-col relative transform scale-[1.05] border-2 border-amber-400">
+                        <div class="absolute top-0 right-0 -mt-3 -mr-3 px-4 py-1 bg-amber-500 text-indigo-900 text-sm font-bold rounded-full shadow-lg">Đề xuất</div>
+                        <h3 class="text-2xl font-bold text-white">Kiến Tạo (Startup)</h3>
+                        <p class="mt-2 text-indigo-200">Dành riêng cho Chủ DN & Founder</p>
+                        <p class="mt-4 text-3xl font-extrabold text-amber-400">Liên hệ</p>
+                        <ul class="mt-6 space-y-3 flex-grow text-white">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-amber-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Cố vấn Mô hình Kinh doanh</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-amber-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Phát triển Năng lực Lãnh đạo Founder</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-amber-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Chiến lược Mạng lưới & Kêu gọi vốn</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-amber-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Đồng hành tư vấn trong 6 tháng</li>
+                        </ul>
+                        <button onclick="openModal('Kiến Tạo (Startup)')" class="mt-8 w-full px-4 py-3 bg-amber-500 text-indigo-900 font-bold rounded-full hover:bg-amber-400 transition duration-300 shadow-lg">Chọn Gói Này</button>
+                    </div>
+
+                    <!-- Package 4: Chuyển Đổi -->
+                    <div class="bg-gray-50 p-6 rounded-2xl shadow-lg flex flex-col transition duration-300 hover:shadow-xl border-t-4 border-gray-200">
+                        <h3 class="text-2xl font-bold text-indigo-800">Chuyển Đổi</h3>
+                        <p class="mt-2 text-gray-500">Đồng hành dài hạn</p>
+                        <p class="mt-4 text-3xl font-extrabold text-amber-500">Liên hệ</p>
+                        <ul class="mt-6 space-y-3 flex-grow text-gray-700">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Bao gồm gói **Tăng Tốc**</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Đồng hành sự nghiệp (3-6 tháng)</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Huấn luyện không giới hạn (thỏa thuận)</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Tối ưu hóa LinkedIn & CV toàn diện</li>
+                        </ul>
+                        <button onclick="openModal('Chuyển Đổi')" class="mt-8 w-full px-4 py-3 border border-indigo-600 text-indigo-600 font-semibold rounded-full hover:bg-indigo-600 hover:text-white transition duration-300">Chọn Gói Này</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section id="blog" class="py-20 sm:py-28 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Bài Viết & Xu Hướng Mới</h2>
+                <p class="mt-4 text-xl text-gray-600 text-center max-w-3xl mx-auto">Kiến thức, xu hướng và câu chuyện truyền cảm hứng về phát triển sự nghiệp trong kỷ nguyên mới, được tạo bởi AI.</p>
+                
+                <div id="blog-content" class="mt-12">
+                    <!-- Blog posts will be injected here (skeletons initially) -->
+                    <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3" id="blog-skeleton">
+                        <div class="blog-post-skeleton bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="skeleton-image h-48 w-full bg-gray-200"></div>
+                            <div class="p-5 space-y-3">
+                                <div class="skeleton-line w-1/4 h-5 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-full h-6 bg-gray-300 rounded"></div>
+                                <div class="skeleton-line w-full h-4 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-5/6 h-4 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-1/3 h-5 mt-4 bg-indigo-200 rounded"></div>
+                            </div>
+                        </div>
+                        <div class="blog-post-skeleton bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="skeleton-image h-48 w-full bg-gray-200"></div>
+                            <div class="p-5 space-y-3">
+                                <div class="skeleton-line w-1/4 h-5 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-full h-6 bg-gray-300 rounded"></div>
+                                <div class="skeleton-line w-full h-4 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-5/6 h-4 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-1/3 h-5 mt-4 bg-indigo-200 rounded"></div>
+                            </div>
+                        </div>
+                        <div class="blog-post-skeleton bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="skeleton-image h-48 w-full bg-gray-200"></div>
+                            <div class="p-5 space-y-3">
+                                <div class="skeleton-line w-1/4 h-5 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-full h-6 bg-gray-300 rounded"></div>
+                                <div class="skeleton-line w-full h-4 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-5/6 h-4 bg-gray-200 rounded"></div>
+                                <div class="skeleton-line w-1/3 h-5 mt-4 bg-indigo-200 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <a href="#" class="px-6 py-3 border border-indigo-600 text-indigo-600 font-semibold rounded-full hover:bg-indigo-600 hover:text-white transition duration-300">Xem Tất Cả Bài Viết</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Advisor Tool Section -->
+        <section id="ai-advisor" class="py-20 sm:py-28 bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">AI Cố Vấn Sự Nghiệp</h2>
+                <p class="mt-4 text-xl text-gray-600 text-center">Nhận phân tích nhanh về chức danh của bạn qua lăng kính EPL & T-Shaped để khám phá các cơ hội phát triển.</p>
+                <div class="mt-12 bg-indigo-50 p-6 sm:p-8 rounded-2xl shadow-xl border border-indigo-200">
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <input
+                            type="text"
+                            id="job-title-input"
+                            placeholder="Ví dụ: Giám đốc Marketing, Trưởng phòng kinh doanh..."
+                            aria-label="Job title input"
+                            class="flex-grow px-5 py-3 border border-indigo-300 rounded-full focus:ring-amber-500 focus:border-amber-500 text-gray-800 shadow-sm"
+                        />
+                        <button
+                            id="generate-advice-button"
+                            class="w-full sm:w-auto flex items-center justify-center px-8 py-3 text-base font-bold rounded-full shadow-lg text-indigo-900 bg-amber-500 hover:bg-amber-600 transition duration-300 disabled:opacity-50"
+                            onclick="handleGenerateAdvice()"
+                        >
+                            <span id="advice-loader" class="hidden loader mr-2"></span>
+                            <span id="advice-text">Phân Tích Ngay</span>
+                        </button>
+                    </div>
+
+                    <p id="advice-error" class="mt-4 text-red-600 text-center font-medium hidden"></p>
+
+                    <div id="ai-results" class="ai-results mt-8 pt-6 border-t border-indigo-300 grid gap-6 md:grid-cols-2 hidden">
+                        <!-- Results injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Registration Modal (Hidden by default) -->
+    <div id="registration-modal-overlay" class="fixed inset-0 z-[60] bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 opacity-0 pointer-events-none modal-overlay" onclick="closeModal()">
+        <div id="registration-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-90 transition-transform duration-300" onclick="event.stopPropagation()">
+            <header class="flex justify-between items-center p-6 border-b bg-indigo-800 text-white">
+                <h3 class="text-2xl font-bold">Đăng Ký Tư Vấn</h3>
+                <button onclick="closeModal()" class="text-white hover:text-amber-400 text-3xl transition" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="p-6">
+                <div id="modal-success-message" class="text-center py-10 hidden">
+                    <h4 class="text-3xl font-bold text-indigo-600 mb-4">Đăng ký thành công!</h4>
+                    <p class="text-gray-600">Cảm ơn bạn đã quan tâm đến gói <strong id="success-package-name"></strong>. Chúng tôi sẽ liên hệ với bạn sớm nhất.</p>
+                </div>
+                
+                <div id="modal-form-content">
+                    <p class="text-lg mb-4 text-gray-700">Bạn đang đăng ký gói: <strong id="modal-package-name" class="text-indigo-600"></strong></p>
+                    <form id="registration-form" onsubmit="handleFormSubmit(event)">
+                        <div class="space-y-4">
+                            <div class="form-group">
+                                <label for="name" class="block text-sm font-medium text-gray-700">Họ và Tên</label>
+                                <input type="text" id="name" name="name" required aria-required="true" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                            </div>
+                            <div class="form-group">
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Số Điện Thoại</label>
+                                <input type="tel" id="phone" name="phone" required aria-required="true" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" id="email" name="email" required aria-required="true" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                            </div>
+                        </div>
+                        <p id="modal-error-message" class="mt-4 text-red-500 text-sm font-medium hidden" role="alert"></p>
+                        <button type="submit" id="modal-submit-button" class="mt-6 w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-amber-500 hover:bg-amber-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="modal-loader" class="hidden loader-small mr-2"></span>
+                            <span id="modal-submit-text">Gửi Đăng Ký</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chatbot (Floating Action Button and Widget) -->
+    <button id="chatbot-fab" class="fixed bottom-6 right-6 z-50 bg-indigo-700 hover:bg-indigo-600 text-white p-4 rounded-full shadow-lg transition-transform duration-300 ease-in-out transform hover:scale-110" aria-label="Open AI Chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg>
+    </button>
+
+    <div id="chat-widget" class="fixed bottom-0 right-0 z-[60] h-full sm:h-[600px] w-full sm:w-[380px] bg-white rounded-t-xl sm:rounded-xl shadow-2xl flex flex-col transform translate-y-full sm:translate-x-full transition-transform duration-300 ease-in-out">
+        <header class="flex justify-between items-center p-4 bg-indigo-800 text-white rounded-t-xl">
+            <h2 class="text-lg font-bold">AI Cố Vấn DuoCareers</h2>
+            <button id="chat-close-button" class="text-xl text-white hover:text-amber-400" aria-label="Close Chat">×</button>
+        </header>
+        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
+            <!-- Initial message -->
+            <div class="flex justify-start">
+                <div class="max-w-[80%] p-3 rounded-xl shadow-md bg-indigo-100 text-gray-800 rounded-tl-none">
+                    Xin chào! Tôi là AI Cố vấn của DuoCareers. Tôi có thể giúp gì cho bạn hôm nay?
+                </div>
+            </div>
+            <!-- Messages injected here -->
+            <div id="messages-end"></div>
+        </div>
+        <form id="chat-input-form" class="p-4 border-t border-gray-200" onsubmit="handleChatSubmit(event)">
+            <div class="flex space-x-2">
+                <input
+                    type="text"
+                    id="chat-input"
+                    placeholder="Nhập câu hỏi của bạn..."
+                    aria-label="Chat input"
+                    class="flex-grow px-4 py-2 border border-gray-300 rounded-full focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <button type="submit" id="chat-send-button" disabled class="bg-indigo-600 text-white p-3 rounded-full hover:bg-indigo-700 transition disabled:bg-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Footer Section -->
+    <footer id="contact" class="bg-indigo-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <a href="#" class="text-3xl font-extrabold tracking-tight text-amber-400">DuoCareers</a>
+            <p class="mt-4 text-indigo-200 max-w-xl mx-auto">Liên hệ với chúng tôi để bắt đầu hành trình kiến tạo sự nghiệp vượt trội của bạn. Hãy để kinh nghiệm của bạn trở thành di sản!</p>
+            
+            <div class="mt-6 text-lg font-medium">
+                <p>Email: <a href="mailto:contact@duocareers.com" class="text-amber-400 hover:text-amber-300 transition">contact@duocareers.com</a></p>
+            </div>
+
+            <!-- Social Media Icons (Updated) -->
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="https://www.facebook.com/duocareerscom" target="_blank" aria-label="Facebook Fanpage" class="text-amber-400 hover:text-white transition">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M14 13.5h2.5l1-4H14v-2c0-1.78 1.13-2.5 3-2.5h1V5h-1c-3.1 0-5 1.7-5 5v3.5zm-3 0V9H9.5c-.56 0-1 .44-1 1v3.5h-2v4h2v7h3V17.5h2.5l.5-4h-3z"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/company/duocareers" target="_blank" aria-label="LinkedIn Company Page" class="text-amber-400 hover:text-white transition">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.3 17.5H5.6V9.2h2.7zM7 8.1a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2zM19 17.5h-2.7v-4.5c0-1.1-.3-2-1.5-2s-1.8.8-1.8 2v4.5H9.7V9.2h2.7v1.2c.4-.7 1.3-1.5 2.5-1.5 2.7 0 4.1 1.8 4.1 5v4.6z"/></svg>
+                </a>
+            </div>
+            <!-- End Social Media Icons -->
+
+            <div class="mt-8 border-t border-indigo-700 pt-6">
+                <p class="text-sm text-indigo-400">&copy; <span id="current-year"></span> DuoCareers. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global Constants and Utilities
+        const API_KEY = typeof __api_key !== 'undefined' ? __api_key : '';
+        const CURRENT_YEAR = new Date().getFullYear();
+        let AI_CHAT_INSTANCE = null;
+        let IS_MODAL_OPEN = false;
+        
+        // Removed the check here as the SDK is now loaded via script tag
+
+        // --- DOM Manipulation Utilities ---
+
+        function getElement(id) {
+            return document.getElementById(id);
+        }
+
+        function safeJsonParse(jsonStr) {
+            let cleanedStr = jsonStr.trim();
+            const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
+            const match = cleanedStr.match(fenceRegex);
+            if (match && match[2]) {
+                cleanedStr = match[2].trim();
+            }
+            return JSON.parse(cleanedStr);
+        }
+
+        // --- Header and Mobile Menu Logic ---
+
+        function toggleMenu() {
+            const menu = getElement('mobile-menu');
+            const menuIconOpen = getElement('menu-icon-open');
+            const menuIconClose = getElement('menu-icon-close');
+            const isOpen = menu.classList.contains('translate-x-0');
+
+            if (isOpen) {
+                // Close menu
+                menu.classList.remove('translate-x-0');
+                menu.classList.add('translate-x-full');
+                menuIconOpen.classList.remove('hidden');
+                menuIconClose.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            } else {
+                // Open menu
+                menu.classList.remove('translate-x-full');
+                menu.classList.add('translate-x-0');
+                menuIconOpen.classList.add('hidden');
+                menuIconClose.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMenu() {
+            const menu = getElement('mobile-menu');
+            if (menu.classList.contains('translate-x-0')) {
+                toggleMenu();
+            }
+        }
+
+        // Attach header event listeners on load
+        document.addEventListener('DOMContentLoaded', () => {
+            getElement('menu-toggle').addEventListener('click', toggleMenu);
+            getElement('current-year').textContent = CURRENT_YEAR;
+        });
+
+        // --- Insight Accordion Logic ---
+
+        function toggleInsight(index) {
+            const container = getElement('insights-container');
+            const items = container.querySelectorAll(`[data-insight-index]`);
+            const targetItem = items[index];
+
+            if (!targetItem) return;
+
+            const content = targetItem.querySelector('.insight-content');
+            const icon = targetItem.querySelector('.insight-toggle-icon');
+            const isOpen = content.classList.contains('open');
+
+            // Close all first, except the current one if it was open
+            items.forEach((item, i) => {
+                const c = item.querySelector('.insight-content');
+                const i_ = item.querySelector('.insight-toggle-icon');
+                if (c.classList.contains('open') && i !== index) {
+                    c.classList.remove('open');
+                    i_.textContent = '+';
+                }
+            });
+
+            // Toggle the target item
+            if (isOpen) {
+                content.classList.remove('open');
+                icon.textContent = '+';
+            } else {
+                content.classList.add('open');
+                icon.textContent = '−';
+            }
+        }
+
+
+        // --- Registration Modal Logic ---
+        
+        let selectedPackageName = '';
+
+        function openModal(packageName) {
+            if (IS_MODAL_OPEN) return;
+            selectedPackageName = packageName;
+            IS_MODAL_OPEN = true;
+            
+            const modalOverlay = getElement('registration-modal-overlay');
+            const modalContent = getElement('registration-modal-content');
+            
+            // Reset form/messages
+            getElement('registration-form').reset();
+            getElement('modal-error-message').classList.add('hidden');
+            getElement('modal-success-message').classList.add('hidden');
+            getElement('modal-form-content').classList.remove('hidden');
+            
+            getElement('modal-package-name').textContent = packageName;
+            getElement('success-package-name').textContent = packageName;
+
+            // Show modal with transition effects
+            modalOverlay.classList.remove('pointer-events-none', 'opacity-0');
+            modalOverlay.classList.add('opacity-100');
+            modalContent.classList.remove('scale-90');
+            modalContent.classList.add('scale-100');
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            if (!IS_MODAL_OPEN) return;
+            
+            const modalOverlay = getElement('registration-modal-overlay');
+            const modalContent = getElement('registration-modal-content');
+
+            // Hide modal with transition effects
+            modalOverlay.classList.remove('opacity-100');
+            modalOverlay.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-90');
+            
+            // Delay disabling pointer events until after transition
+            setTimeout(() => {
+                modalOverlay.classList.add('pointer-events-none');
+                IS_MODAL_OPEN = false;
+            }, 300);
+            
+            document.body.style.overflow = 'auto';
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const form = getElement('registration-form');
+            const submitButton = getElement('modal-submit-button');
+            const loader = getElement('modal-loader');
+            const submitText = getElement('modal-submit-text');
+            const errorMessage = getElement('modal-error-message');
+            
+            // Validation
+            const name = form.name.value.trim();
+            const phone = form.phone.value.trim();
+            const email = form.email.value.trim();
+
+            if (!name || !phone || !email) {
+                errorMessage.textContent = 'Vui lòng điền đầy đủ thông tin.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                errorMessage.textContent = 'Vui lòng nhập một địa chỉ email hợp lệ.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            errorMessage.classList.add('hidden');
+            submitButton.disabled = true;
+            loader.classList.remove('hidden');
+            submitText.textContent = 'Đang gửi...';
+
+            try {
+                // Simulate API Call
+                await new Promise(resolve => setTimeout(resolve, 1500)); 
+
+                // Success
+                getElement('modal-form-content').classList.add('hidden');
+                getElement('modal-success-message').classList.remove('hidden');
+                
+                // Auto close after success
+                setTimeout(closeModal, 2000);
+                
+            } catch (error) {
+                errorMessage.textContent = 'Đã xảy ra lỗi khi gửi form. Vui lòng thử lại.';
+                errorMessage.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+                submitText.textContent = 'Gửi Đăng Ký';
+                submitButton.disabled = false;
+            }
+        }
+
+
+        // --- AI Blog Section Logic ---
+
+        async function fetchBlogPosts() {
+            if (!API_KEY) {
+                getElement('blog-skeleton').innerHTML = '<p class="text-center mt-12 text-red-600 font-medium">Lỗi: Không tìm thấy API Key. Không thể tải bài viết.</p>';
+                return;
+            }
+            
+            // @ts-ignore
+            const ai = new GoogleGenAI({ apiKey: API_KEY });
+            const blogContentContainer = getElement('blog-content');
+            const skeleton = getElement('blog-skeleton');
+            
+            skeleton.classList.remove('hidden');
+            
+            try {
+                const blogPrompt = `
+                    Với vai trò là một chuyên gia content marketing cho DuoCareers, một công ty tư vấn sự nghiệp chiến lược tại Việt Nam, hãy tạo ra 3 bài viết blog hấp dẫn.
+                    Mục tiêu là các chuyên gia, nhà quản lý đang muốn phát triển sự nghiệp.
+                    Chủ đề xoay quanh: phát triển sự nghiệp, lãnh đạo, kỹ năng chuyên môn, xây dựng thương hiệu cá nhân, mô hình T-shaped, và khung EPL (Entrepreneurship, Professionalism, Leadership).
+
+                    **Yêu cầu định dạng đầu ra:**
+                    - Trả về một mảng JSON hợp lệ, chứa chính xác 3 đối tượng.
+                    - **Không** bao gồm bất kỳ văn bản, giải thích, hay markdown nào trước hoặc sau mảng JSON.
+                    - Mỗi đối tượng trong mảng phải có cấu trúc sau:
+                    {
+                      "category": "string (bằng tiếng Việt)",
+                      "title": "string (bằng tiếng Việt)",
+                      "summary": "string (tóm tắt 2-3 câu bằng tiếng Việt)",
+                      "image_prompt": "string (mô tả chi tiết bằng tiếng Anh để tạo ảnh)"
+                    }
+                `;
+
+                // 1. Generate Blog Post metadata using Gemini
+                const textResponse = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash-preview-09-2025',
+                    contents: [{ role: 'user', parts: [{ text: blogPrompt }] }],
+                    config: { 
+                        responseMimeType: 'application/json',
+                        thinkingConfig: { thinkingBudget: 0 } 
+                    },
+                });
+
+                const generatedPostsData = safeJsonParse(textResponse.text);
+                let html = '<div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">';
+
+                // 2. Generate Images for each post using Imagen and build HTML
+                for (const post of generatedPostsData) {
+                    const imageResponse = await ai.models.generateImages({
+                        model: 'imagen-3.0-generate-002',
+                        prompt: post.image_prompt,
+                        config: { numberOfImages: 1 },
+                    });
+
+                    const imageUrl = `data:image/jpeg;base64,${imageResponse.generatedImages[0].image.imageBytes}`;
+                    
+                    html += `
+                        <div class="bg-white rounded-xl shadow-xl overflow-hidden transform hover:scale-[1.02] transition duration-300">
+                            <img src="${imageUrl}" alt="${post.title}" class="h-48 w-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e3a8a/ffffff?text=DuoCareers+Blog';" />
+                            <div class="p-5">
+                                <span class="text-sm font-semibold text-indigo-600 uppercase tracking-wider">${post.category}</span>
+                                <h3 class="mt-2 text-xl font-bold text-gray-900 line-clamp-2">${post.title}</h3>
+                                <p class="mt-3 text-gray-600 line-clamp-3">${post.summary}</p>
+                                <a href="#" class="mt-4 inline-block text-indigo-600 font-semibold hover:text-amber-500 transition">Đọc thêm &rarr;</a>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+                blogContentContainer.innerHTML = html;
+
+
+            } catch (err) {
+                console.error("Error fetching blog posts:", err);
+                blogContentContainer.innerHTML = '<p class="text-center mt-12 text-red-600 font-medium">Không thể tải bài viết do lỗi API. Vui lòng thử lại sau.</p>';
+            } finally {
+                skeleton.classList.add('hidden');
+            }
+        }
+
+
+        // --- AI Advisor Tool Logic ---
+
+        async function handleGenerateAdvice() {
+            const jobTitleInput = getElement('job-title-input');
+            const jobTitle = jobTitleInput.value.trim();
+            const adviceError = getElement('advice-error');
+            const generateButton = getElement('generate-advice-button');
+            const adviceLoader = getElement('advice-loader');
+            const adviceText = getElement('advice-text');
+            const resultsDiv = getElement('ai-results');
+
+            if (!jobTitle) {
+                adviceError.textContent = 'Vui lòng nhập chức danh công việc.';
+                adviceError.classList.remove('hidden');
+                return;
+            }
+            if (!API_KEY) {
+                adviceError.textContent = 'Lỗi: Không tìm thấy API Key.';
+                adviceError.classList.remove('hidden');
+                return;
+            }
+            
+            adviceError.classList.add('hidden');
+            generateButton.disabled = true;
+            adviceLoader.classList.remove('hidden');
+            adviceText.textContent = 'Đang phân tích...';
+            resultsDiv.classList.add('hidden');
+            resultsDiv.innerHTML = '';
+
+
+            try {
+                // @ts-ignore
+                const ai = new GoogleGenAI({ apiKey: API_KEY });
+                const prompt = `Với vai trò là một chuyên gia tư vấn sự nghiệp cho lãnh đạo cấp cao tại Việt Nam, hãy phân tích chức danh "${jobTitle}".
+
+                **Phân tích dựa trên:**
+                - Khung EPL (Entrepreneurship, Professionalism, Leadership)
+                - Mô hình T-Shaped
+
+                **Yêu cầu định dạng đầu ra:**
+                - Trả về một đối tượng JSON hợp lệ.
+                - **Không** bao gồm bất kỳ văn bản, giải thích, hay markdown nào trước hoặc sau đối tượng JSON.
+                - Đối tượng JSON phải có cấu trúc sau:
+                {
+                  "nextLevelSkills": ["string", "string", "string"],
+                  "growthTrajectories": ["string", "string"],
+                  "strategicChallenge": "string"
+                }
+                - "nextLevelSkills": Cung cấp chính xác 3 kỹ năng cụ thể cần trau dồi bằng tiếng Việt.
+                - "growthTrajectories": Cung cấp chính xác 2 con đường sự nghiệp tiềm năng bằng tiếng Việt.
+                - "strategicChallenge": Mô tả 1 thách thức chiến lược lớn nhất bằng tiếng Việt.`;
+
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash-preview-09-2025',
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                    config: {
+                        responseMimeType: 'application/json',
+                        thinkingConfig: { thinkingBudget: 0 },
+                    },
+                });
+                
+                const advice = safeJsonParse(response.text);
+
+                // Check basic structure
+                if (!Array.isArray(advice.nextLevelSkills) || !Array.isArray(advice.growthTrajectories)) {
+                    throw new Error("Invalid structure from AI.");
+                }
+
+                // Render results
+                const skillList = advice.nextLevelSkills.map(s => `<li class="flex items-start"><svg class="h-5 w-5 text-indigo-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> ${s}</li>`).join('');
+                const pathList = advice.growthTrajectories.map(p => `<li class="flex items-start"><svg class="h-5 w-5 text-indigo-600 mr-2 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> ${p}</li>`).join('');
+                
+                resultsDiv.innerHTML = `
+                    <div class="result-category bg-white p-5 rounded-xl shadow-md">
+                        <h4 class="text-xl font-bold text-indigo-700 mb-3 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Kỹ Năng Cần Phát Triển (EPL)</h4>
+                        <ul class="list-none space-y-2 text-gray-700 ml-0">${skillList}</ul>
+                    </div>
+                    <div class="result-category bg-white p-5 rounded-xl shadow-md">
+                        <h4 class="text-xl font-bold text-indigo-700 mb-3 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg> Lộ Trình Phát Triển Tiềm Năng (T-Shaped)</h4>
+                        <ul class="list-none space-y-2 text-gray-700 ml-0">${pathList}</ul>
+                    </div>
+                    <div class="result-category bg-white p-5 rounded-xl shadow-md col-span-full">
+                        <h4 class="text-xl font-bold text-indigo-700 mb-3 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.332 16c-.77 1.333.192 3 1.732 3z" /></svg> Thách Thức Chiến Lược</h4>
+                        <p class="text-gray-700">${advice.strategicChallenge}</p>
+                    </div>
+                `;
+                resultsDiv.classList.remove('hidden');
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (err) {
+                console.error(err);
+                adviceError.textContent = 'Đã xảy ra lỗi khi tạo gợi ý. Vui lòng thử lại. (Lỗi định dạng hoặc API)';
+                adviceError.classList.remove('hidden');
+            } finally {
+                generateButton.disabled = false;
+                adviceLoader.classList.add('hidden');
+                adviceText.textContent = 'Phân Tích Ngay';
+            }
+        }
+        
+        // --- AI Chatbot Logic (Minimal Implementation) ---
+
+        // AIChatbot State Management
+        const chatWidget = getElement('chat-widget');
+        const chatMessages = getElement('chat-messages');
+        const chatInput = getElement('chat-input');
+        const chatSendButton = getElement('chat-send-button');
+        const messagesEnd = getElement('messages-end');
+
+        function toggleChatbot() {
+            const isChatOpen = chatWidget.classList.contains('translate-y-0');
+            if (isChatOpen) {
+                chatWidget.classList.remove('translate-y-0', 'sm:translate-x-0');
+                chatWidget.classList.add('translate-y-full', 'sm:translate-x-full');
+            } else {
+                chatWidget.classList.remove('translate-y-full', 'sm:translate-x-full');
+                chatWidget.classList.add('translate-y-0', 'sm:translate-x-0');
+                // Initialize chat instance on open if not already done
+                if (!AI_CHAT_INSTANCE && typeof GoogleGenAI !== 'undefined') {
+                    initializeChatbot();
+                }
+                chatInput.focus();
+            }
+        }
+
+        function initializeChatbot() {
+             if (!API_KEY) {
+                console.error("API Key not found for chatbot.");
+                return;
+            }
+
+            // @ts-ignore
+            const ai = new GoogleGenAI({ apiKey: API_KEY });
+            const systemInstruction = "You are a friendly and professional AI career advisor for DuoCareers, a Vietnamese company specializing in strategic career development. Your goal is to assist users by answering their questions about career growth, our services (like EPL & T-Shaped models), and providing helpful advice. Communicate clearly and concisely in Vietnamese. If asked about prices, direct them to the 'Bảng Giá' section. If asked for contact details, provide contact@duocareers.com for specific inquiries.";
+
+            AI_CHAT_INSTANCE = ai.chats.create({
+                model: 'gemini-2.5-flash-preview-09-2025',
+                config: { systemInstruction: systemInstruction },
+            });
+            chatSendButton.disabled = false;
+        }
+
+        function appendMessage(role, text) {
+            const isUser = role === 'user';
+            const html = `
+                <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[80%] p-3 rounded-xl shadow-md ${isUser ? 'bg-amber-400 text-gray-800 rounded-br-none' : 'bg-indigo-100 text-gray-800 rounded-tl-none'}">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            chatMessages.insertBefore(div.firstChild, messagesEnd);
+            messagesEnd.scrollIntoView({ behavior: "smooth" });
+            return messagesEnd.previousElementSibling.querySelector('div'); // Return the bubble element
+        }
+
+        function appendTypingIndicator() {
+            const html = `
+                <div id="typing-indicator" class="flex justify-start">
+                    <div class="bg-indigo-100 text-gray-800 p-3 rounded-xl rounded-tl-none shadow-md">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>
+                </div>
+            `;
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            chatMessages.insertBefore(div.firstChild, messagesEnd);
+            messagesEnd.scrollIntoView({ behavior: "smooth" });
+        }
+
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text || !AI_CHAT_INSTANCE || chatSendButton.disabled) return;
+            
+            chatInput.value = '';
+            chatInput.disabled = true;
+            chatSendButton.disabled = true;
+
+            appendMessage('user', text);
+            appendTypingIndicator();
+
+            try {
+                const stream = await AI_CHAT_INSTANCE.sendMessageStream({ message: text });
+                
+                let currentResponse = "";
+                // Remove the typing indicator
+                const typingIndicator = getElement('typing-indicator');
+                if (typingIndicator) typingIndicator.remove();
+                
+                // Start adding new message bubble (initially empty)
+                const modelBubble = appendMessage('model', '');
+                
+                for await (const chunk of stream) {
+                    currentResponse += chunk.text;
+                    modelBubble.innerHTML = currentResponse;
+                    messagesEnd.scrollIntoView({ behavior: "smooth" });
+                }
+
+            } catch (error) {
+                console.error("Chat error:", error);
+                appendMessage('model', "Rất tiếc, đã có lỗi xảy ra. Vui lòng thử lại sau.");
+            } finally {
+                chatInput.disabled = false;
+                chatSendButton.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // Attach Chatbot listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            getElement('chatbot-fab').addEventListener('click', toggleChatbot);
+            getElement('chat-close-button').addEventListener('click', toggleChatbot);
+            getElement('chat-input').addEventListener('input', (e) => {
+                chatSendButton.disabled = e.target.value.trim() === '';
+            });
+            fetchBlogPosts(); // Start fetching blog posts when DOM is ready
+        });
+
+    </script>
+</body>
+</html>
